@@ -80,8 +80,15 @@ public class MagicWorkbenchController extends MagicController implements MagicEx
 	@GetMapping("/config.json")
 	@Valid(requireLogin = false)
 	@ResponseBody
-	public MagicAPIProperties readConfig() {
-		return properties;
+	public Map<String, Object> readConfig() {
+		Map<String, Object> configJson = new HashMap<>();
+		configJson.put("persistenceResponseBody", properties.isPersistenceResponseBody());
+		configJson.put("version", properties.getVersion());
+		configJson.put("web", properties.getWeb());
+		configJson.put("prefix", properties.getPrefix());
+		configJson.put("autoImportModuleList", properties.getAutoImportModuleList());
+		configJson.put("autoImportPackage", properties.getAutoImportPackage());
+		return configJson;
 	}
 
 	@GetMapping(value = "/classes.txt", produces = "text/plain")
@@ -252,6 +259,7 @@ public class MagicWorkbenchController extends MagicController implements MagicEx
 	}
 
 	@RequestMapping(value = "/config-js")
+	@ResponseBody
 	@Valid(requireLogin = false)
 	public void configJs(MagicHttpServletResponse response) throws IOException {
 		response.setContentType("application/javascript");
@@ -263,9 +271,10 @@ public class MagicWorkbenchController extends MagicController implements MagicEx
 				if (path.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
 					path = path.substring(ResourceUtils.CLASSPATH_URL_PREFIX.length());
 					bytes = IoUtils.bytes(new ClassPathResource(path).getInputStream());
+				} else {
+					File file = ResourceUtils.getFile(configuration.getEditorConfig());
+					bytes = Files.readAllBytes(Paths.get(file.toURI()));
 				}
-				File file = ResourceUtils.getFile(configuration.getEditorConfig());
-				bytes = Files.readAllBytes(Paths.get(file.toURI()));
 			} catch (IOException e) {
 				logger.warn("读取编辑器配置文件{}失败", configuration.getEditorConfig());
 			}
@@ -277,6 +286,7 @@ public class MagicWorkbenchController extends MagicController implements MagicEx
 	}
 
 	@RequestMapping("/download")
+	@ResponseBody
 	@Valid(authorization = Authorization.DOWNLOAD)
 	public void download(String groupId, @RequestBody(required = false) List<SelectedResource> resources, MagicHttpServletRequest request, MagicHttpServletResponse response) throws IOException {
 		isTrue(allowVisit(request, Authorization.DOWNLOAD), PERMISSION_INVALID);

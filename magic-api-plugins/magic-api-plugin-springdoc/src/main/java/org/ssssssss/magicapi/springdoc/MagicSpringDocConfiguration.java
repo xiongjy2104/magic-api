@@ -87,7 +87,7 @@ public class MagicSpringDocConfiguration implements MagicPluginConfiguration {
 				} else {
 					urls = new HashSet<>(urls);
 				}
-				urls.add(new SwaggerUrl(springDocConfig.getGroupName(), springDocConfig.getLocation(), null));
+				urls.add(new SwaggerUrl(springDocConfig.getGroupName(), servletContext.getContextPath() + springDocConfig.getLocation(), null));
 				params.put("urls", urls);
 				return params;
 			}
@@ -96,7 +96,6 @@ public class MagicSpringDocConfiguration implements MagicPluginConfiguration {
 
 
 	private void createSwaggerProvider(ObjectProvider<RequestMagicDynamicRegistry> requestMagicDynamicRegistryObjectProvider, MagicResourceService magicResourceService, ServletContext servletContext) throws NoSuchMethodException {
-
 		Mapping mapping = Mapping.create(requestMappingHandlerMapping);
 		RequestMappingInfo requestMappingInfo = mapping.paths(springDocConfig.getLocation()).build();
 		SwaggerEntity.License license = new SwaggerEntity.License("MIT", "https://gitee.com/ssssssss-team/magic-api/blob/master/LICENSE");

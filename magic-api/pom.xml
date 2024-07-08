@@ -12,6 +12,11 @@
     <packaging>jar</packaging>
     <name>magic-api</name>
     <description>auto generate http api</description>
+
+    <properties>
+        <netty.version>4.1.111.Final</netty.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.ssssssss</groupId>
@@ -29,6 +34,23 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.wangzihaogithub</groupId>
+            <artifactId>spring-boot-protocol</artifactId>
+            <version>2.3.21</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>netty-all</artifactId>
+            <groupId>io.netty</groupId>
+            <version>${netty.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
