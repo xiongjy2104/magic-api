@@ -35,13 +35,13 @@ public class LRUCache extends LinkedHashMap<String, LRUCache.ExpireNode<Object>>
 
 	public void put(String name, String key, Object value, long ttl) {
 		long expireTime = ttl > 0 ? (System.currentTimeMillis() + ttl) : (this.expire > -1 ? System.currentTimeMillis() + this.expire : Long.MAX_VALUE);
-		lock.writeLock().lock();
-		try {
-			// 封装成过期时间节点
-			put(name + separator + key, new ExpireNode<>(expireTime, value));
-		} finally {
-			lock.writeLock().unlock();
-		}
+//		lock.writeLock().lock();
+//		try {
+//			// 封装成过期时间节点
+//			put(name + separator + key, new ExpireNode<>(expireTime, value));
+//		} finally {
+//			lock.writeLock().unlock();
+//		}
 	}
 
 	public Object get(String name, String key) {

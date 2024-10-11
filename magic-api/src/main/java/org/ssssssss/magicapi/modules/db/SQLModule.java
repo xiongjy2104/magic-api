@@ -3,37 +3,34 @@ package org.ssssssss.magicapi.modules.db;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.ssssssss.magicapi.core.model.Options;
-import org.ssssssss.magicapi.modules.DynamicModule;
-import org.ssssssss.magicapi.modules.db.dialect.DialectAdapter;
-import org.ssssssss.magicapi.datasource.model.MagicDynamicDataSource;
-import org.ssssssss.magicapi.datasource.model.MagicDynamicDataSource.DataSourceNode;
 import org.ssssssss.magicapi.core.annotation.MagicModule;
 import org.ssssssss.magicapi.core.context.RequestContext;
 import org.ssssssss.magicapi.core.context.RequestEntity;
+import org.ssssssss.magicapi.core.interceptor.ResultProvider;
+import org.ssssssss.magicapi.core.model.Options;
+import org.ssssssss.magicapi.datasource.model.MagicDynamicDataSource;
+import org.ssssssss.magicapi.datasource.model.MagicDynamicDataSource.DataSourceNode;
+import org.ssssssss.magicapi.modules.DynamicModule;
 import org.ssssssss.magicapi.modules.db.cache.SqlCache;
 import org.ssssssss.magicapi.modules.db.dialect.Dialect;
+import org.ssssssss.magicapi.modules.db.dialect.DialectAdapter;
 import org.ssssssss.magicapi.modules.db.inteceptor.NamedTableInterceptor;
 import org.ssssssss.magicapi.modules.db.inteceptor.SQLInterceptor;
 import org.ssssssss.magicapi.modules.db.model.Page;
+import org.ssssssss.magicapi.modules.db.model.SqlTypes;
 import org.ssssssss.magicapi.modules.db.provider.PageProvider;
 import org.ssssssss.magicapi.modules.db.table.NamedTable;
-import org.ssssssss.magicapi.core.interceptor.ResultProvider;
 import org.ssssssss.magicapi.utils.ScriptManager;
 import org.ssssssss.script.MagicScriptContext;
 import org.ssssssss.script.annotation.Comment;
 import org.ssssssss.script.functions.DynamicAttribute;
 import org.ssssssss.script.parsing.ast.statement.ClassConverter;
-import org.ssssssss.script.reflection.JavaReflection;
 import org.ssssssss.script.runtime.RuntimeContext;
 
 import java.beans.Transient;
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 数据库查询模块
@@ -44,9 +41,6 @@ import java.util.stream.Stream;
 public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, DynamicModule<SQLModule> {
 	static {
 		try {
-			Field[] fields = Types.class.getFields();
-			Map<String, Integer> mappings = Stream.of(fields)
-					.collect(Collectors.toMap(field -> field.getName().toLowerCase(), field -> (Integer) JavaReflection.getFieldValue(Types.class, field)));
 			ClassConverter.register("sql", (value, params) -> {
 				if (params == null || params.length == 0) {
 					return value;
@@ -58,7 +52,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 				if (StringUtils.isBlank(target)) {
 					return value;
 				}
-				Integer sqlType = mappings.get(target.toLowerCase());
+				Integer sqlType = SqlTypes.getSqlType(target);
 				return sqlType == null ? value : new SqlParameterValue(sqlType, target, value);
 			});
 		} catch (Exception ignored) {
@@ -81,6 +75,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	private long ttl;
 	private String logicDeleteColumn;
 	private String logicDeleteValue;
+    public static List<SqlParameter> params;
 
 	public SQLModule() {
 
@@ -779,5 +774,33 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 			return key;
 		}
 	}
+
+    @Comment("调用存储过程")
+    public Object call(RuntimeContext runtimeContext,
+                                            @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml) {
+		assertDatasourceNotNull();
+		BoundSql boundSql = new BoundSql(runtimeContext, sqlOrXml, Collections.emptyMap(), this);
+		return boundSql.execute(this.sqlInterceptors, () -> this.dataSourceNode.getJdbcTemplate().call(
+				con -> {
+					CallableStatement statement = con.prepareCall(boundSql.getSql());
+					Object[] parameters = boundSql.getParameters();
+					for (int i = 0, size = parameters.length; i < size; i++) {
+						Object parameter = parameters[i];
+						if (parameter instanceof SqlOutParameter) {
+							SqlOutParameter sop = (SqlOutParameter)parameter;
+							statement.registerOutParameter(i + 1, sop.getSqlType());
+						} else if(parameter instanceof SqlParameterValue){
+							SqlParameterValue spv = (SqlParameterValue)parameter;
+							if(spv.getName() != null){
+								statement.registerOutParameter(i + 1, spv.getSqlType());
+							}
+							statement.setObject(i + 1, spv.getValue());
+						} else {
+							statement.setObject(i + 1, parameter);
+						}
+					}
+					return statement;
+				}, boundSql.getDeclareParameters()));
+    }
 
 }

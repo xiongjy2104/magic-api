@@ -8,7 +8,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.ssssssss.magicapi.core.servlet.MagicCookie;
 import org.ssssssss.magicapi.core.servlet.MagicHttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -39,8 +39,17 @@ public class MagicJavaEEHttpServletResponse implements MagicHttpServletResponse 
 
 	@Override
 	public void addCookie(MagicCookie cookie) {
-		MagicJavaEECookie javaEECookie = (MagicJavaEECookie) cookie;
-		response.addCookie(javaEECookie.getOriginCookie());
+		response.addCookie(cookie.getCookie());
+	}
+
+	@Override
+	public void setContentType(String contentType) {
+		response.setContentType(contentType);
+	}
+
+	@Override
+	public void setCharacterEncoding(String characterEncoding) {
+		response.setCharacterEncoding(characterEncoding);
 	}
 
 	@Override
@@ -51,6 +60,11 @@ public class MagicJavaEEHttpServletResponse implements MagicHttpServletResponse 
 	@Override
 	public Collection<String> getHeaderNames() {
 		return response.getHeaderNames();
+	}
+
+	@Override
+	public <T> T getResponse() {
+		return (T) response;
 	}
 
 

@@ -8,7 +8,7 @@ import org.ssssssss.script.annotation.Comment;
 import org.ssssssss.script.functions.ExtensionMethod;
 import org.ssssssss.script.functions.ObjectConvertExtension;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 import java.util.Map;
 
 public class MagicJavaEEResponseExtension implements ExtensionMethod {

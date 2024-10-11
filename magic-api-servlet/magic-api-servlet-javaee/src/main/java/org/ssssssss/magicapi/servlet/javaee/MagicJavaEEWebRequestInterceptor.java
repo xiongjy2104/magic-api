@@ -5,8 +5,8 @@ import org.ssssssss.magicapi.core.config.MagicCorsFilter;
 import org.ssssssss.magicapi.core.interceptor.AuthorizationInterceptor;
 import org.ssssssss.magicapi.core.interceptor.MagicWebRequestInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class MagicJavaEEWebRequestInterceptor extends MagicWebRequestInterceptor implements HandlerInterceptor {
 
@@ -15,7 +15,6 @@ public class MagicJavaEEWebRequestInterceptor extends MagicWebRequestInterceptor
 		super(magicCorsFilter, authorizationInterceptor);
 	}
 
-	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		super.handle(handler, new MagicJavaEEHttpServletRequest(request, null), new MagicJavaEEHttpServletResponse(response));
 		return true;

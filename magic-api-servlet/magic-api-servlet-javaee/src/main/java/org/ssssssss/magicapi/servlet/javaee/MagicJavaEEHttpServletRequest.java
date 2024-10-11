@@ -13,8 +13,8 @@ import org.ssssssss.magicapi.core.servlet.MagicCookie;
 import org.ssssssss.magicapi.core.servlet.MagicHttpServletRequest;
 import org.ssssssss.magicapi.core.servlet.MagicHttpSession;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
@@ -114,6 +114,11 @@ public class MagicJavaEEHttpServletRequest implements MagicHttpServletRequest {
 	@Override
 	public Principal getUserPrincipal() {
 		return request.getUserPrincipal();
+	}
+
+	@Override
+	public <T> T getRequest() {
+		return (T) request;
 	}
 
 	public static class ArgumentsResolver implements HandlerMethodArgumentResolver {

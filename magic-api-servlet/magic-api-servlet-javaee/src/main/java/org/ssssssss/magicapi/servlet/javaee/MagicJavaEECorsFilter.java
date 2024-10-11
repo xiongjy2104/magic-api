@@ -2,9 +2,9 @@ package org.ssssssss.magicapi.servlet.javaee;
 
 import org.ssssssss.magicapi.core.config.MagicCorsFilter;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class MagicJavaEECorsFilter extends MagicCorsFilter implements Filter {

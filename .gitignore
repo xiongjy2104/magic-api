@@ -7,3 +7,5 @@ out/
 .settings
 bin/
 .myeclipse
+magic-api-plugins/magic-api-plugin-component/src/console/node_modules
+magic-api-plugins/magic-api-plugin-task/src/console/node_modules

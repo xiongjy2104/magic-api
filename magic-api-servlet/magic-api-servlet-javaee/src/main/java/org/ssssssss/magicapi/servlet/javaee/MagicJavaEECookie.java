@@ -2,7 +2,7 @@ package org.ssssssss.magicapi.servlet.javaee;
 
 import org.ssssssss.magicapi.core.servlet.MagicCookie;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 public class MagicJavaEECookie implements MagicCookie {
 
@@ -22,7 +22,8 @@ public class MagicJavaEECookie implements MagicCookie {
 		return cookie.getValue();
 	}
 
-	public Cookie getOriginCookie() {
-		return cookie;
+	@Override
+	public <T> T getCookie() {
+		return (T) cookie;
 	}
 }
