@@ -46,13 +46,13 @@ public class LRUCache extends LinkedHashMap<String, LRUCache.ExpireNode<Object>>
 
 	public Object get(String name, String key) {
 		key = name + separator + key;
-		lock.readLock().lock();
-		ExpireNode<Object> expireNode;
-		try {
-			expireNode = super.get(key);
-		} finally {
-			lock.readLock().unlock();
-		}
+//		lock.readLock().lock();
+		ExpireNode<Object> expireNode = null;
+//		try {
+//			expireNode = super.get(key);
+//		} finally {
+//			lock.readLock().unlock();
+//		}
 		if (expireNode == null) {
 			return null;
 		}
