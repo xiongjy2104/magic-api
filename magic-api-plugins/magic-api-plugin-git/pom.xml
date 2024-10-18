@@ -13,7 +13,7 @@
     <name>magic-api-plugin-git</name>
     <description>magic-api-plugin-git</description>
     <properties>
-        <jgit.version>5.13.0.202109080827-r</jgit.version>
+        <jgit.version>5.13.3.202401111512-r</jgit.version>
     </properties>
     <dependencies>
         <dependency>
@@ -27,4 +27,11 @@
             <version>${jgit.version}</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
 </project>

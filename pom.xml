@@ -8,26 +8,6 @@
     <version>3.33.33</version>
     <packaging>pom</packaging>
     <name>magic-api-parent</name>
-    <description>auto generate http api</description>
-    <url>https://ssssssss.org/</url>
-    <inceptionYear>2020</inceptionYear>
-    <licenses>
-        <license>
-            <name>The MIT License (MIT)</name>
-            <url>https://github.com/ssssssss-team/magic-api/blob/master/LICENSE</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>jmxd</name>
-            <email>838425805@qq.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <url>https://gitee.com/ssssssss-team/magic-api</url>
-        <connection>scm:git:https://gitee.com/ssssssss-team/magic-api.git</connection>
-        <developerConnection>scm:git:https://gitee.com/ssssssss-team/magic-api.git</developerConnection>
-    </scm>
     <properties>
         <spring-boot.version>3.1.2</spring-boot.version>
         <magic-script.version>1.8.8</magic-script.version>
@@ -39,8 +19,12 @@
         <fastjson.version>1.2.83</fastjson.version>
         <spring-boot-starter-log4j.version>1.3.8.RELEASE</spring-boot-starter-log4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 	<modules>
+        <module>magic-api-deps</module>
+<!--                <module>magic-spring-boot-protocol</module>-->
 		<module>magic-api</module>
         <module>magic-editor</module>
         <module>magic-api-servlet</module>
@@ -141,6 +125,11 @@
                     <!--Compiler-->
                     <plugin>
                         <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-parameters</arg>
+                            </compilerArgs>
+                        </configuration>
                     </plugin>
                     <!-- Source -->
                     <plugin>

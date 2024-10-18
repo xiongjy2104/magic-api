@@ -44,8 +44,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.wangzihaogithub</groupId>
-            <artifactId>spring-boot-protocol</artifactId>
+            <groupId>org.ssssssss</groupId>
+            <artifactId>magic-spring-boot-protocol</artifactId>
             <version>3.33.33</version>
         </dependency>
 
