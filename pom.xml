@@ -24,10 +24,9 @@
     </properties>
 	<modules>
         <module>magic-api-deps</module>
-<!--                <module>magic-spring-boot-protocol</module>-->
+        <module>magic-script</module>
 		<module>magic-api</module>
         <module>magic-editor</module>
-        <module>magic-script</module>
         <module>magic-api-servlet</module>
         <module>magic-api-plugins</module>
         <module>magic-api-spring-boot-starter</module>
