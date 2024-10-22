@@ -12,7 +12,7 @@ public class MySQLDialect implements Dialect {
 
 	@Override
 	public boolean match(String jdbcUrl) {
-		return jdbcUrl.contains(":mysql:") || jdbcUrl.contains(":mariadb:") || jdbcUrl.contains(":cobar:");
+		return jdbcUrl.contains(":mysql:") || jdbcUrl.contains(":mariadb:") || jdbcUrl.contains(":arrow-flight-sql:") || jdbcUrl.contains(":cobar:");
 	}
 
 	@Override

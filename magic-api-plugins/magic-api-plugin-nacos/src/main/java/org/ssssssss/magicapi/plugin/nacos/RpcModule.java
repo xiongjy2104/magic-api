@@ -16,7 +16,7 @@ import org.ssssssss.script.annotation.Comment;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-@MagicModule("rpc")
+@MagicModule("nacos")
 public class RpcModule {
 
 
@@ -25,29 +25,29 @@ public class RpcModule {
 
     @Comment("访问rpc服务")
     public JSONObject to(@Comment("selectName(服务名称)")String selectName, @Comment("path(请求路径)")String path
-            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhedler) throws NacosException {
-        HttpRequest httpRequest = apiinit(selectName,method,path,ifhedler);
+            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhandler) throws NacosException {
+        HttpRequest httpRequest = apiinit(selectName,method,path,ifhandler);
         String restr = httpRequest.timeout(20000).execute().body();//表单内容
         return JSON.parseObject(restr);
     }
 
     @Comment("访问rpc服务表单提交")
     public JSONObject toform(@Comment("selectName(服务名称)")String selectName, @Comment("path(请求路径)")String path, @Comment("paramMap(请求数据map格式)") Map<String,Object> paramMap
-            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhedler) throws NacosException {
-        HttpRequest httpRequest = apiinit(selectName,method,path,ifhedler);
+            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhandler) throws NacosException {
+        HttpRequest httpRequest = apiinit(selectName,method,path,ifhandler);
         String restr = httpRequest.form(paramMap).timeout(20000).execute().body();//表单内容
         return JSON.parseObject(restr);
     }
 
     @Comment("访问rpc服务body方式")
     public JSONObject tobody(@Comment("selectName(服务名称)")String selectName, @Comment("path(请求路径)")String path, @Comment("body(请求数据json格式)") String body
-            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhedler) throws NacosException {
-        HttpRequest httpRequest = apiinit(selectName,method,path,ifhedler);
+            , @Comment("method(请求方式)") String method, @Comment("ifhedler(是否将头部token设置到请求中)") boolean ifhandler) throws NacosException {
+        HttpRequest httpRequest = apiinit(selectName,method,path,ifhandler);
         String restr = httpRequest.body(body).timeout(20000).execute().body();//表单内容
         return JSON.parseObject(restr);
     }
 
-    private HttpRequest apiinit(String selectName,String method,String path,boolean ifhedler) throws NacosException {
+    private HttpRequest apiinit(String selectName,String method,String path,boolean ifhandler) throws NacosException {
         Instance instance = namingService.selectOneHealthyInstance(selectName);
         HttpRequest httpRequest = null;
         if(method.compareToIgnoreCase("post")==0){
@@ -67,7 +67,7 @@ public class RpcModule {
         }else if(method.compareToIgnoreCase("trace")==0){
             httpRequest = HttpRequest.trace(instance.getIp()+":"+instance.getPort()+path);
         }
-        if(ifhedler){
+        if(ifhandler){
             RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
             //RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
