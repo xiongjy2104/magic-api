@@ -47,7 +47,7 @@ for(let k in localeScripts){
 const props = defineProps({
     title: {
         type: String,
-        default: 'magic-api'
+        default: '通查平台'
     },
     themeStyle: Object,
     header: Object
