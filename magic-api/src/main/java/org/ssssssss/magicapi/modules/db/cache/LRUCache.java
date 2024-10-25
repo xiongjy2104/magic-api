@@ -58,15 +58,15 @@ public class LRUCache extends LinkedHashMap<String, LRUCache.ExpireNode<Object>>
 		}
 		// 惰性删除过期的
 //        if (this.expire > -1L && expireNode.expire < System.currentTimeMillis()) {
-		if (expireNode.expire < System.currentTimeMillis()) {
-			try {
-				lock.writeLock().lock();
-				super.remove(key);
-			} finally {
-				lock.writeLock().unlock();
-			}
-			return null;
-		}
+//		if (expireNode.expire < System.currentTimeMillis()) {
+//			try {
+//				lock.writeLock().lock();
+//				super.remove(key);
+//			} finally {
+//				lock.writeLock().unlock();
+//			}
+//			return null;
+//		}
 		return expireNode.value;
 	}
 
