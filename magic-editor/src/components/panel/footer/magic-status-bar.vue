@@ -1,7 +1,7 @@
 <template>
     <div class="magic-status-bar">
         <div class="message" v-html="content"></div>
-        <magic-online />
+        <!-- <magic-online /> -->
         <ul>
             <li v-for="(item, key) in navs" :data-title="item.title" data-tooltip-direction="left-top" :key="key" @click.stop="item.onClick">
                 <magic-icon :icon="item.icon"/>
