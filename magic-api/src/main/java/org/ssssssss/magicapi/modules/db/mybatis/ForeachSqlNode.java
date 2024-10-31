@@ -35,6 +35,10 @@ public class ForeachSqlNode extends SqlNode {
 	 * 分隔符
 	 */
 	private String separator;
+	/**
+	 * collection分隔符
+	 */
+	private String collectionSeparator;
 
 	/**
 	 * 序号
@@ -57,6 +61,10 @@ public class ForeachSqlNode extends SqlNode {
 		this.close = close;
 	}
 
+	public void setCollectionSeparator(String collectionSeparator) {
+		this.collectionSeparator = collectionSeparator;
+	}
+
 	public void setSeparator(String separator) {
 		this.separator = separator;
 	}
@@ -72,6 +80,10 @@ public class ForeachSqlNode extends SqlNode {
 		// 如果集合为空，则过滤该节点
 		if (value == null) {
 			return "";
+		}
+		//拆字符串
+		if(value instanceof String){
+			value=value.toString().split(StringUtils.defaultString(this.collectionSeparator,","));
 		}
 		// 如果集合是Collection对象或其子类，则转成数组
 		if (value instanceof Collection) {
