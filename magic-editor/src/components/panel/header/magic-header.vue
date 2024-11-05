@@ -47,7 +47,7 @@ for(let k in localeScripts){
 const props = defineProps({
     title: {
         type: String,
-        default: '通查平台'
+        default: '通查平台GreatQuery'
     },
     themeStyle: Object,
     header: Object

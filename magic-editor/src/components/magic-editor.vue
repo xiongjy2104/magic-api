@@ -220,7 +220,7 @@ const init = () => {
 		}
 		autoLogin().then(() => {
 			hideLoadingElement()
-			checkUpdate()
+			// checkUpdate()
 		})
 	}).catch(e => {
 		console.error(e)
@@ -258,7 +258,7 @@ defineTheme('dark-new', darkNewTheme)
 Object.keys(config.themes || {}).forEach(themeKey => {
 	defineTheme(themeKey, config.themes[themeKey])
 })
-constants.THEME = config.theme || 'default'
+constants.THEME = config.theme || 'dark-new'
 constants.DEFAULT_EXPAND = config.defaultExpand !== false
 constants.JDBC_DRIVERS = config.jdbcDrivers || constants.JDBC_DRIVERS
 constants.DATASOURCE_TYPES = config.datasourceTypes || constants.DATASOURCE_TYPES
