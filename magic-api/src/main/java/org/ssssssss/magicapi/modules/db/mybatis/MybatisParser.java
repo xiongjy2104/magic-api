@@ -48,8 +48,6 @@ public class MybatisParser {
 					childNode = parseSetSqlNode(stream);
 				} else if (stream.match("where")) {
 					childNode = parseWhereSqlNode(stream);
-				} else if (stream.match("include")) {
-					childNode = parseIncludeSqlNode(stream);
 				}else {
 					throw new UnsupportedOperationException("Unsupported tags :" + stream.consume().getNodeName());
 				}
@@ -119,13 +117,6 @@ public class MybatisParser {
 	 */
 	private static WhereSqlNode parseWhereSqlNode(NodeStream stream) {
 		return processChildren(new WhereSqlNode(), stream.consume());
-	}
-
-	private static IncludeSqlNode parseIncludeSqlNode(NodeStream stream) {
-		Node node = stream.consume();
-		IncludeSqlNode includeSqlNode = new IncludeSqlNode();
-		includeSqlNode.setRefid(getNodeAttributeValue(node, "refid"));
-		return processChildren(includeSqlNode, new TextSqlNode(includeSqlNode.getRefid()));
 	}
 
 	private static String getNodeAttributeValue(Node node, String attributeKey, String defaultValue) {
