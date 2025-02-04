@@ -376,6 +376,14 @@ public class NamedTable extends Attributes<Object> {
 		return sqlModule.page(buildSelect(runtimeContext));
 	}
 
+	@Comment("执行分页查询，分页条件手动传入，不带count默认最大整数")
+	public Object pageOnly(RuntimeContext runtimeContext,
+					   @Comment(name = "limit", value = "限制条数") long limit,
+					   @Comment(name = "offset", value = "跳过条数") long offset) {
+		preHandle(SqlMode.PAGE);
+		return sqlModule.pageOnly(buildSelect(runtimeContext), new Page(limit, offset));
+	}
+    
 	@Comment("执行分页查询，分页条件手动传入")
 	public Object page(RuntimeContext runtimeContext,
 					   @Comment(name = "limit", value = "限制条数") long limit,

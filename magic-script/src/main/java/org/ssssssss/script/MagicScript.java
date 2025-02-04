@@ -1,6 +1,8 @@
 package org.ssssssss.script;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ssssssss.script.compile.CompileCache;
 import org.ssssssss.script.compile.MagicScriptCompileException;
 import org.ssssssss.script.compile.MagicScriptCompiler;
@@ -18,6 +20,7 @@ import org.ssssssss.script.parsing.ast.statement.VariableAccess;
 import org.ssssssss.script.runtime.MagicScriptClassLoader;
 import org.ssssssss.script.runtime.MagicScriptRuntime;
 import org.ssssssss.script.runtime.MagicScriptVariableAccessRuntime;
+import trace.SamplingLog;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -33,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class MagicScript extends CompiledScript {
+	private static final Logger logger = LoggerFactory.getLogger(MagicScript.class);
 
 	public static final String CONTEXT_ROOT = "ROOT";
 
@@ -71,7 +75,7 @@ public class MagicScript extends CompiledScript {
 
 	private String[] varNames;
 
-	private static CompileCache compileCache;
+	private static CompileCache compileCache=new CompileCache(1000);;
 
 	private MagicScript(List<Node> nodes, Set<VarIndex> varIndices, ScriptEngine scriptEngine, boolean debug) {
 		this.nodes = nodes;
@@ -88,17 +92,21 @@ public class MagicScript extends CompiledScript {
 	 * 创建MagicScript
 	 */
 	public static MagicScript create(String source, ScriptEngine scriptEngine) {
-		return create(false, source, scriptEngine);
+		SamplingLog.log("MagicScript","create");
+//		long st=System.currentTimeMillis();
+		MagicScript script= create(false, source, scriptEngine);
+//		logger.info("timeCounter#3c in threadId-"+Thread.currentThread().getId()+ "time {}, source {}","MagicScriptcreate "+st%10000+" + "+(System.currentTimeMillis()-st), source.length()>80?source.substring(0,80):source);
+		return script;
 	}
 
 	/**
 	 * 创建MagicScript
 	 */
 	public static MagicScript create(boolean expression, String source, ScriptEngine scriptEngine) {
-		if (compileCache == null) {
-			compileCache = new CompileCache(500);
-		}
-		return compileCache.get(source, () -> {
+//		if (compileCache == null) {
+//			compileCache = new CompileCache(1000);
+//		}
+		MagicScript script1= compileCache.get(source, () -> {
 			Parser parser = new Parser();
 			boolean debug = source.startsWith(DEBUG_MARK);
 			String script = debug ? source.substring(DEBUG_MARK.length()) : source;
@@ -106,9 +114,12 @@ public class MagicScript extends CompiledScript {
 			Set<VarIndex> varIndices = parser.getVarIndices();
 			return new MagicScript(nodes, varIndices, scriptEngine, debug);
 		});
+		return script1;
 	}
 
 	public Object execute(MagicScriptContext context) {
+		SamplingLog.log("MagicScript","execute");
+//		long st=System.currentTimeMillis();
 		MagicScriptRuntime runtime = null;
 		try {
 			MagicScriptEngine.getDefaultImports().forEach((name, value) -> {
@@ -119,7 +130,11 @@ public class MagicScript extends CompiledScript {
 				}
 			});
 			runtime = compile();
-			return runtime.execute(context);
+//			long mt=System.currentTimeMillis()-st;
+			Object result= runtime.execute(context);
+			SamplingLog.log("MagicScript","executeEnd");
+//			logger.info("timeCounter# in threadId-"+Thread.currentThread().getId()+ " ScriptStart {} +compile {} +execute {}",st%10000,mt,(System.currentTimeMillis()-st-mt));
+			return result;
 		} catch (MagicExitException e) {
 			return e.getExitValue();
 		} catch (MagicScriptCompileException e) {
@@ -134,6 +149,7 @@ public class MagicScript extends CompiledScript {
 	 * 编译
 	 */
 	public MagicScriptRuntime compile() throws MagicScriptCompileException {
+		SamplingLog.log("MagicScript","compile");
 		if (this.accessRuntime != null) {
 			return this.accessRuntime;
 		}

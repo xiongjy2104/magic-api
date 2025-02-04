@@ -8,7 +8,10 @@ import com.github.netty.protocol.servlet.util.FilterMapper;
 import com.github.netty.protocol.servlet.util.ServletUtil;
 
 import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import trace.SamplingLog;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,18 @@ public class ServletFilterChain implements FilterChain, Recyclable {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+
+        String remoteAddr = request.getRemoteAddr();
+        try {
+            // Check for proxies and get the real IP address
+            String forwardedFor = ((HttpServletRequest) request).getHeader("X-Forwarded-For");
+            if (forwardedFor != null && !forwardedFor.isEmpty()) {
+                remoteAddr = forwardedFor.split(",")[0]; // Get the first IP in the list
+            }
+        }catch (Exception e){
+            // Ignore
+        }
+        SamplingLog.log(this.getClass().getName(),"doFilter request from "+ remoteAddr);
         ServletEventListenerManager listenerManager = servletContext.getServletEventListenerManager();
 
         //Initialization request

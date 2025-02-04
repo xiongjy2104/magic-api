@@ -7,6 +7,7 @@ import com.github.netty.protocol.servlet.util.Protocol;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import trace.SamplingLog;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -61,6 +62,7 @@ public class DispatcherChannelHandler extends AbstractChannelHandler<Object, Obj
 
     @Override
     protected void onMessageReceived(ChannelHandlerContext context, Object msg) {
+        SamplingLog.log(this.getClass().getName(),"onMessageReceived");
         try {
             MessageToRunnable messageToRunnable = getMessageToRunnable(context.channel());
             if (messageToRunnable != null) {

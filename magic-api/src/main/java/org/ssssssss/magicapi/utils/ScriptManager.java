@@ -3,6 +3,7 @@ package org.ssssssss.magicapi.utils;
 import org.ssssssss.script.MagicScript;
 import org.ssssssss.script.MagicScriptContext;
 import org.ssssssss.script.MagicScriptDebugContext;
+import trace.SamplingLog;
 
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public class ScriptManager {
 	 * 执行脚本
 	 */
 	public static Object executeScript(String script, MagicScriptContext context) {
+		SamplingLog.log("ScriptManager","executeScript");
 		script = (context instanceof MagicScriptDebugContext ? MagicScript.DEBUG_MARK : "") + script;
 		MagicScript magicScript = MagicScript.create(script, null);
 		// 执行脚本

@@ -1,6 +1,10 @@
 package com.github.netty.core.util;
 
 import io.netty.util.concurrent.FastThreadLocalThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import trace.SamplingLog;
+import trace.SamplingPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +14,7 @@ import java.util.function.Consumer;
  * Created by wangzihao on 2018/9/9/009.
  */
 public class NettyThreadX extends FastThreadLocalThread {
+    private static final Logger logger = LoggerFactory.getLogger(NettyThreadX.class);
     private List<Consumer<NettyThreadX>> threadStopListenerList;
 
     public NettyThreadX() {
@@ -46,6 +51,10 @@ public class NettyThreadX extends FastThreadLocalThread {
 
     @Override
     public void run() {
+        long threadId =  Thread.currentThread().getId();
+//        SamplingPool.addThreadId(threadId);
+        logger.info("timeCounter#threadId-{} at {} running to {}.{}", threadId, System.currentTimeMillis() % 10000, "NettyThreadX", "run");
+
         try {
             super.run();
         } finally {

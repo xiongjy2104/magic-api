@@ -86,7 +86,7 @@ public interface ResultProvider {
 	 * @since 1.2.2
 	 */
 	default Object buildException(RequestEntity requestEntity, Throwable throwable) {
-		return buildResult(requestEntity, RESPONSE_CODE_EXCEPTION, "系统内部出现错误");
+		return buildResult(requestEntity, RESPONSE_CODE_EXCEPTION, "系统错误"+throwable.getCause());
 	}
 
 	/**

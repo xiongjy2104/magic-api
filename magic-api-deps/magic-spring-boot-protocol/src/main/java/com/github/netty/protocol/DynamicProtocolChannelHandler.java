@@ -11,6 +11,7 @@ import io.netty.channel.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.AttributeKey;
+import trace.SamplingLog;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -42,7 +43,7 @@ public class DynamicProtocolChannelHandler extends AbstractChannelHandler<ByteBu
     /**
      * maxConnections
      */
-    private int maxConnections = 1000000;
+    private int maxConnections = 100000;
     /**
      * The timeout (milliseconds) of the first client package.
      * When there is a new link Access, if the packet is confiscated in time,
@@ -83,6 +84,7 @@ public class DynamicProtocolChannelHandler extends AbstractChannelHandler<ByteBu
 
     @Override
     protected void onMessageReceived(ChannelHandlerContext ctx, ByteBuf clientFirstMsg) throws Exception {
+        SamplingLog.log(this.getClass().getName(),"onMessageReceived");
         Channel channel = ctx.channel();
         channel.pipeline().remove(this);
 

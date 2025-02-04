@@ -40,6 +40,7 @@ import org.ssssssss.script.functions.ObjectConvertExtension;
 import org.ssssssss.script.parsing.Span;
 import org.ssssssss.script.parsing.ast.literal.BooleanLiteral;
 import org.ssssssss.script.reflection.JavaInvoker;
+import trace.SamplingLog;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -90,6 +91,9 @@ public class RequestHandler extends MagicController {
 						 @RequestHeader(required = false) Map<String, Object> defaultHeaders,
 						 @RequestParam(required = false) Map<String, Object> parameters) throws Throwable {
 		String clientId = null;
+
+		SamplingLog.log(this.getClass().getName(),"invoke");
+		long st=System.currentTimeMillis();
 		Map<String, Object> headers = new LinkedCaseInsensitiveMap<>();
 		headers.putAll(defaultHeaders);
 		boolean requestedFromTest = configuration.isEnableWeb() && (clientId = request.getHeader(HEADER_REQUEST_CLIENT_ID)) != null && request.getHeader(HEADER_REQUEST_SCRIPT_ID) != null;
@@ -148,6 +152,11 @@ public class RequestHandler extends MagicController {
 			// 设置 body 变量
 			if (bodyValue != null) {
 				context.set(VAR_NAME_REQUEST_BODY, bodyValue);
+				//TODO: maybe need to skip those in context.getRootVariables()
+				context.putMapIntoContext((HashMap)bodyValue);
+				// 验证 body
+//				doValidateBody(scriptName, "body", bodyValue, info.getRequestBody(), Map.class);
+//				doValidate(scriptName, "header", info.getHeaders(), headers, HEADER_INVALID, disabledUnknownParameter);
 			}
 			BaseDefinition requestBody = info.getRequestBodyDefinition();
 			if (requestBody != null && !CONST_STRING_TRUE.equalsIgnoreCase(info.getOptionValue(Options.DISABLED_VALIDATE_REQUEST_BODY)) && !CollectionUtils.isEmpty(requestBody.getChildren())) {
@@ -160,6 +169,8 @@ public class RequestHandler extends MagicController {
 			return afterCompletion(requestEntity, resultProvider.buildResult(requestEntity, RESPONSE_CODE_INVALID, e.getMessage()));
 		} catch (Throwable root) {
 			return processException(requestEntity, root);
+//		}finally {
+//			requestEntity.getResponse().setHeader("timeCounter#2","validatePhase:"+st%10000+" + "+(System.currentTimeMillis()-st));
 		}
 		RequestContext.setRequestEntity(requestEntity);
 		Object value;
@@ -179,9 +190,12 @@ public class RequestHandler extends MagicController {
 			} finally {
 				MagicLoggerContext.remove();
 				WebSocketSessionManager.removeMagicScriptContext(sessionAndScriptId);
+//				requestEntity.getResponse().setHeader("timeCounter#RequestHandler#invoke",Thread.currentThread().getId()+"requestedFromTest"+st%10000+" + "+(System.currentTimeMillis()-st));
 			}
 		} else {
-			return invokeRequest(requestEntity);
+			Object result= invokeRequest(requestEntity);
+//			requestEntity.getResponse().setHeader("timeCounter#RequestHandler#invoke",Thread.currentThread().getId()+"notFromTest"+st%10000+" + "+(System.currentTimeMillis()-st));
+			return result;
 		}
 	}
 
@@ -331,9 +345,13 @@ public class RequestHandler extends MagicController {
 	}
 
 	private Object invokeRequest(RequestEntity requestEntity) throws Throwable {
+		long st=System.currentTimeMillis();
+		SamplingLog.log(this.getClass().getName(),"onMessageReceived");
 		try {
 			MagicScriptContext context = requestEntity.getMagicScriptContext();
 			Object result = ScriptManager.executeScript(requestEntity.getApiInfo().getScript(), context);
+//			requestEntity.getResponse().setHeader("timeCounter#3","executeScriptPhase:"+st%10000+" + "+(System.currentTimeMillis()-st));
+
 			Object value = result;
 			// 执行后置拦截器
 			if ((value = doPostHandle(requestEntity, value)) != null) {
@@ -344,6 +362,7 @@ public class RequestHandler extends MagicController {
 		} catch (Throwable root) {
 			return processException(requestEntity, root);
 		} finally {
+//			logger.info("timeCounter#RequestHandler#invokeRequest {}",Thread.currentThread().getId()+"invokeRequest"+st%10000+" + "+(System.currentTimeMillis()-st));
 			RequestContext.remove();
 		}
 	}
@@ -445,6 +464,8 @@ public class RequestHandler extends MagicController {
 	}
 
 	private Object afterCompletion(RequestEntity requestEntity, Object returnValue, Throwable throwable) {
+		SamplingLog.log(this.getClass().getName(),"afterCompletion");
+		long st=System.currentTimeMillis();
 		for (RequestInterceptor requestInterceptor : configuration.getRequestInterceptors()) {
 			try {
 				requestInterceptor.afterCompletion(requestEntity, returnValue, throwable);
@@ -464,6 +485,8 @@ public class RequestHandler extends MagicController {
 		if (!exposeHeaders.isEmpty()) {
 			requestEntity.getResponse().setHeader(ACCESS_CONTROL_EXPOSE_HEADERS, String.join(",", exposeHeaders));
 		}
+//		requestEntity.getResponse().setHeader("timeCounter#RequestHandler#afterCompletion","afterCompletion:"+st%10000+" + "+(System.currentTimeMillis()-st));
+//		logger.info("timeCounter# in threadId-"+Thread.currentThread().getId()+ requestEntity.getResponse().getHeaderNames().stream().filter(name-> name.startsWith("timeCounter")).map(((jakarta.servlet.http.HttpServletResponse)(requestEntity.getResponse().getResponse()))::getHeader).collect(Collectors.joining(",", " ", " ")));
 		return returnValue;
 	}
 

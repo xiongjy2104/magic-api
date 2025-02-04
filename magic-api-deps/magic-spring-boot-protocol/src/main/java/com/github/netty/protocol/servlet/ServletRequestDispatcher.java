@@ -8,6 +8,8 @@ import com.github.netty.protocol.servlet.util.UrlMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import trace.SamplingLog;
+
 import java.io.IOException;
 
 /**
@@ -210,6 +212,7 @@ public class ServletRequestDispatcher implements RequestDispatcher, Recyclable {
      * @throws IOException      IOException
      */
     public void dispatch(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+        SamplingLog.log(this.getClass().getName(),"dispatch");
         filterChain.doFilter(request, response);
     }
 

@@ -53,4 +53,9 @@ public interface SqlCache {
 	 */
 	void delete(String name);
 
+	/**
+	 * 容量
+	 *
+	 */
+	long size();
 }
