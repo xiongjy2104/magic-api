@@ -44,11 +44,11 @@ import java.util.stream.Collectors;
 //        datasource_group    kafka_topic
 //        datasource_group    kafka_group
  */
-public class FlinkTaskStarter {
+public class FlinkDorisStarterDemo {
 
     public static int DEFAULT_PARALLELISM = 2;
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkTaskStarter.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlinkDorisStarterDemo.class);
 
 
     public static void main(String[] args) throws Exception {

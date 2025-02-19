@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
 //        datasource_group    kafka_topic
 //        datasource_group    kafka_group
  */
-public class FlinkTaskStarterV1 {
+public class FlinkDorisStarterDemoV1 {
 
     public static int DEFAULT_PARALLELISM = 2;
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkTaskStarterV1.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlinkDorisStarterDemoV1.class);
 
     public static void main(String[] args) throws Exception {
 //        ParameterTool parameterTool = ParameterTool.fromArgs(args);
