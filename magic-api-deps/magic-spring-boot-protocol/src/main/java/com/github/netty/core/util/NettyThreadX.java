@@ -53,7 +53,7 @@ public class NettyThreadX extends FastThreadLocalThread {
     public void run() {
         long threadId =  Thread.currentThread().getId();
 //        SamplingPool.addThreadId(threadId);
-        logger.info("timeCounter#threadId-{} at {} running to {}.{}", threadId, System.currentTimeMillis() % 10000, "NettyThreadX", "run");
+        logger.info("timeCounter#threadId-{} at {} running to {}.{}", threadId, System.currentTimeMillis() % 1000000, "NettyThreadX", "run");
 
         try {
             super.run();

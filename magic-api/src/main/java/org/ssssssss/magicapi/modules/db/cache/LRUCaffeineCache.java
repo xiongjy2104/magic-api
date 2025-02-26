@@ -23,11 +23,11 @@ public class LRUCaffeineCache  {
 	}
 
 	public void put(String name, String key, Object value) {
-		cacheMap.put(key, value);
+		cacheMap.put(name + separator + key, value);
 	}
 
 	public void put(String name, String key, Object value, long ttl) {
-		cacheMap.put(key, value);
+		cacheMap.put(name + separator + key, value);
 	}
 
 	public Object get(String name, String key) {
@@ -37,7 +37,8 @@ public class LRUCaffeineCache  {
 	}
 
 	public void delete(String name) {
-		cacheMap.invalidate(name);
+		cacheMap.invalidateAll();//TODO: filter with name prefix
+//		cacheMap.invalidate(name);
 	}
 
 	public long size() {

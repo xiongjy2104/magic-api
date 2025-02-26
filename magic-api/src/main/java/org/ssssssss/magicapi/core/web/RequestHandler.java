@@ -45,6 +45,8 @@ import trace.SamplingLog;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,7 +108,7 @@ public class RequestHandler extends MagicController {
 				.pathVariables(new HashMap<>(pathVariables))
 				.parameters(parameters);
 		ApiInfo info = requestEntity.getApiInfo();
-		if (info == null) {
+		if (info == null || invalidTime(info)){
 			logger.error("{}找不到对应接口", request.getRequestURI());
 			return afterCompletion(requestEntity, buildResult(requestEntity, API_NOT_FOUND, "接口不存在"));
 		}
@@ -196,6 +198,19 @@ public class RequestHandler extends MagicController {
 			Object result= invokeRequest(requestEntity);
 //			requestEntity.getResponse().setHeader("timeCounter#RequestHandler#invoke",Thread.currentThread().getId()+"notFromTest"+st%10000+" + "+(System.currentTimeMillis()-st));
 			return result;
+		}
+	}
+
+	private static boolean invalidTime(ApiInfo info) {
+		try {
+			LocalDateTime activateTime = LocalDateTime.parse(info.getOptionValue(Options.ACTIVATE_TIME),
+					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+			LocalDateTime deactivateTime = LocalDateTime.parse(info.getOptionValue(Options.DEACTIVATE_TIME),
+					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+			return activateTime.isAfter(LocalDateTime.now()) || deactivateTime.isBefore(LocalDateTime.now());
+		}catch (Exception e){
+			logger.info("接口生效时间未设置，默认不拦。");
+			return false;
 		}
 	}
 

@@ -32,9 +32,9 @@ public class SamplingLog {
         long threadId = Thread.currentThread().getId();
 //        if(SamplingRatio.getRatio()==1 || (SamplingRatio.getRatio()>0 && threadId%(SamplingRatio.getRatio())==1)) {
 //        if(SamplingNumber.getSamplingThreadNo()== threadId) {
-        if (SamplingPool.getSamplingThreadId() == threadId) {
-            logger.info("timeCounter#host-{}-threadId-{}-time-{}  running to {}.{}", hostname, threadId, System.currentTimeMillis() % 100000, className, methodJoint);
-        }
+//        if (SamplingPool.getSamplingThreadId() == threadId) {
+            logger.info("timeCounter#host-{}-threadId-{}-time-{}  running to {}.{}", hostname, threadId, System.currentTimeMillis() % 1000000, className, methodJoint);
+//        }
     }
 }
 
