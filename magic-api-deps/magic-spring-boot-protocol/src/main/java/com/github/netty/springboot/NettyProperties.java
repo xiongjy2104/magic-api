@@ -66,7 +66,7 @@ public class NettyProperties implements Serializable {
     /**
      * 服务端 - TCP级别最大同时在线的连接数
      */
-    private int maxConnections = 1000000;
+    private int maxConnections = 100000;
     /**
      * 服务端 - 是否tcp数据包日志
      */
@@ -82,7 +82,8 @@ public class NettyProperties implements Serializable {
     /**
      * 服务端-IO线程数  注: (0 = cpu核数 * 2 )
      */
-    private int serverIoThreads = Math.max(Runtime.getRuntime().availableProcessors() * 2, 4);
+//    private int serverIoThreads = Math.max(Runtime.getRuntime().availableProcessors() * 2, 4);
+    private int serverIoThreads = 12;
     /**
      * 服务端-io线程执行调度与执行io事件的百分比. 注:(100=每次只执行一次调度工作, 其他都执行io事件), 并发高的时候可以设置最大
      */
@@ -102,7 +103,7 @@ public class NettyProperties implements Serializable {
     /**
      * tcp 服务端接收新连接,等待被accept出的, 队列大小 (默认50)
      */
-    private int soBacklog = 50;
+    private int soBacklog = 100;
     /**
      * netty的内存泄漏检测级别(调试程序的时候用). 默认禁用, 不然极其耗费性能
      */

@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.ssssssss.magicapi.core.annotation.MagicModule;
 import org.ssssssss.script.annotation.Comment;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @MagicModule("nacos")

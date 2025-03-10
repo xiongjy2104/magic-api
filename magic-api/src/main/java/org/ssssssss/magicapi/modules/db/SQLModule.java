@@ -26,6 +26,7 @@ import org.ssssssss.script.annotation.Comment;
 import org.ssssssss.script.functions.DynamicAttribute;
 import org.ssssssss.script.parsing.ast.statement.ClassConverter;
 import org.ssssssss.script.runtime.RuntimeContext;
+import trace.SamplingLog;
 
 import java.beans.Transient;
 import java.sql.*;
@@ -159,6 +160,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	public String getLogicDeleteColumn() {
 		return logicDeleteColumn;
 	}
+
 
 	@Transient
 	public void setLogicDeleteColumn(String logicDeleteColumn) {
@@ -336,9 +338,39 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	}
 
 	private List<Map<String, Object>> queryForList(BoundSql boundSql) {
+        SamplingLog.log(this.getClass().getName(),"queryForList");
 		List<Map<String, Object>> list = dataSourceNode.getJdbcTemplate().query(boundSql.getSql(), this.columnMapRowMapper, boundSql.getParameters());
 		if (boundSql.getExcludeColumns() != null) {
 			list.forEach(row -> boundSql.getExcludeColumns().forEach(row::remove));
+		}
+		return reorganizeResult(list);
+	}
+
+	/*
+	*  convert `subitem#column1` in a query into sub-json format
+	*/
+	private List<Map<String, Object>> reorganizeResult(List<Map<String, Object>> list) {
+		boolean existSub=false;
+		for(Map<String, Object> item:list){
+			Map<String, Object> extras=new LinkedHashMap<>();
+			for (Iterator<Map.Entry<String, Object>> it = item.entrySet().iterator(); it.hasNext();){
+				Map.Entry<String,Object> entry=it.next();
+				String[] extKey=entry.getKey().split("#");
+				if(extKey.length<=1)
+					continue;
+				existSub=true;
+				Map<String, Object> subItem=(Map<String, Object>)extras.get(extKey[0]);
+				if(subItem==null)
+				{
+					subItem=new LinkedHashMap<>();
+					extras.putIfAbsent(extKey[0],subItem);
+				}
+				subItem.putIfAbsent(extKey[1],entry.getValue());
+				it.remove();
+			}
+			item.putAll(extras);
+			if(!existSub)
+				break;
 		}
 		return list;
 	}
@@ -517,12 +549,31 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	}
 
 	/**
+	 * 分页查询
+	 */
+	@Comment("执行分页查询，分页条件自动获取")
+	public Object pageOnly(RuntimeContext runtimeContext,
+					   @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml,
+					   @Comment(name = "params", value = "变量信息") Map<String, Object> params) {
+		return pageOnly(new BoundSql(runtimeContext, sqlOrXml, params, this));
+	}
+	/**
 	 * 分页查询,并传入变量信息
 	 */
 	@Comment("执行分页查询，并传入变量信息，分页条件自动获取")
 	public Object page(RuntimeContext runtimeContext,
 					   @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml) {
+		SamplingLog.log(this.getClass().getName(),"page");
 		return page(runtimeContext, sqlOrXml, (Map<String, Object>) null);
+	}
+	/**
+	 * 分页查询,并传入变量信息
+	 */
+	@Comment("执行分页查询，并传入变量信息，分页条件自动获取，不带count默认最大整数")
+	public Object pageOnly(RuntimeContext runtimeContext,
+					   @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml) {
+		SamplingLog.log(this.getClass().getName(),"pageOnly");
+		return pageOnly(runtimeContext, sqlOrXml, (Map<String, Object>) null);
 	}
 
 	/**
@@ -548,6 +599,27 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 		BoundSql boundSql = new BoundSql(runtimeContext, sqlOrXml, params, this);
 		return page(boundSql, new Page(limit, offset));
 	}
+
+	/**
+	 * 分页查询（手动传入limit和offset参数）
+	 */
+	@Comment("执行分页查询，并传入变量信息，分页条件手动传入，不带count默认最大整数")
+	public Object pageOnly(RuntimeContext runtimeContext,
+					   @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml,
+					   @Comment(name = "limit", value = "限制条数") long limit,
+					   @Comment(name = "offset", value = "跳过条数") long offset,
+					   @Comment(name = "params", value = "变量信息") Map<String, Object> params) {
+		BoundSql boundSql = new BoundSql(runtimeContext, sqlOrXml, params, this);
+		return pageOnly(boundSql, new Page(limit, offset));
+	}
+
+
+	@Transient
+	public Object pageOnly(BoundSql boundSql) {
+		Page page = pageProvider.getPage(boundSql.getRuntimeContext());
+		return pageOnly(boundSql, page);
+	}
+
 
 	@Transient
 	public Object page(BoundSql boundSql) {
@@ -599,6 +671,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	}
 
 	private Object page(int count, BoundSql boundSql, Page page, Dialect dialect) {
+        SamplingLog.log(this.getClass().getName(),"page");
 		List<Map<String, Object>> list = null;
 		if (count > 0) {
 			if (dialect == null) {
@@ -609,6 +682,27 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 		}
 		RequestEntity requestEntity = RequestContext.getRequestEntity();
 		return resultProvider.buildPageResult(requestEntity, page, count, list);
+	}
+
+	private Object pageOnly(int count, BoundSql boundSql, Page page, Dialect dialect) {
+        SamplingLog.log(this.getClass().getName(),"pageOnly");
+		List<Map<String, Object>> list = null;
+		if (dialect == null) {
+			dialect = dataSourceNode.getDialect(dialectAdapter);
+		}
+		BoundSql pageBoundSql = buildPageBoundSql(dialect, boundSql, page.getOffset(), page.getLimit());
+		list = pageBoundSql.execute(this.sqlInterceptors, () -> queryForList(pageBoundSql));
+
+		RequestEntity requestEntity = RequestContext.getRequestEntity();
+		return resultProvider.buildPageResult(requestEntity, page, count, list);
+	}
+
+	@Transient
+	public Object pageOnly(BoundSql boundSql, Page page) {
+		assertDatasourceNotNull();
+		Dialect dialect = dataSourceNode.getDialect(dialectAdapter);
+		int count=-1;
+		return pageOnly(count, boundSql, page, dialect);
 	}
 
 	@Transient
@@ -626,6 +720,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	@Comment("查询总条目数")
 	public Integer count(RuntimeContext runtimeContext,
 							 @Comment(name = "sqlOrXml", value = "`SQL`语句或`xml`") String sqlOrXml) {
+		SamplingLog.log(this.getClass().getName(),"count");
 		return count(runtimeContext, sqlOrXml, null);
 	}
 
@@ -663,6 +758,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 
 	@Transient
 	public Integer selectInt(BoundSql boundSql) {
+		SamplingLog.log(this.getClass().getName(),"selectInt");
 		assertDatasourceNotNull();
 		return boundSql.execute(this.sqlInterceptors, () -> dataSourceNode.getJdbcTemplate().query(boundSql.getSql(), new SingleRowResultSetExtractor<>(Integer.class), boundSql.getParameters()));
 	}
@@ -688,6 +784,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 
 	@Transient
 	public Map<String, Object> selectOne(BoundSql boundSql) {
+		SamplingLog.log(this.getClass().getName(),"selectOne");
 		assertDatasourceNotNull();
 		return boundSql.execute(this.sqlInterceptors, () -> {
 			Map<String, Object> row = dataSourceNode.getJdbcTemplate().query(boundSql.getSql(), new SingleRowResultSetExtractor<>(this.columnMapRowMapper), boundSql.getParameters());
@@ -732,6 +829,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	@Transient
 	@Override
 	public SQLModule getDynamicModule(MagicScriptContext context) {
+		SamplingLog.log(this.getClass().getName(),"getDynamicModule");
 		String dataSourceKey = context.getString(Options.DEFAULT_DATA_SOURCE.getValue());
 		if (StringUtils.isEmpty(dataSourceKey)) return this;
 		SQLModule newSqlModule = cloneSQLModule();

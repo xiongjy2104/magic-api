@@ -27,6 +27,7 @@ public abstract class MagicWebRequestInterceptor {
 			handlerMethod = (HandlerMethod) handler;
 			handler = handlerMethod.getBean();
 			if (handler instanceof MagicController) {
+				long st=System.currentTimeMillis();
 				if (magicCorsFilter != null) {
 					magicCorsFilter.process(request, response);
 				}
@@ -37,6 +38,7 @@ public abstract class MagicWebRequestInterceptor {
 					request.setAttribute(Constants.ATTRIBUTE_MAGIC_USER, authorizationInterceptor.getUserByToken(request.getHeader(Constants.MAGIC_TOKEN_HEADER)));
 				}
 				((MagicController) handler).doValid(request, valid);
+//				response.setHeader("timeCounter",Thread.currentThread().getId()+"startFromInterceptorPhase:"+st%10000+" + "+(System.currentTimeMillis()-st));
 			}
 		}
 	}

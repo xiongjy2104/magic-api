@@ -11,6 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Iterator;
+import java.util.Map;
 /**
  * JSON工具包
  *
@@ -102,4 +107,81 @@ public class JsonUtils {
 		return json == null ? new byte[0] : json.getBytes(StandardCharsets.UTF_8);
 	}
 
+	public static String diffJson(JsonNode json1, JsonNode json2)  {
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode diffNode = mapper.createObjectNode();
+		if(json1==json2)
+			return "{}";
+		if(json1==null || json2 ==null)
+			return "{\"result\":\"Invalid JSON Format error.\"}";
+		compareJsonNodes(json1, json2, diffNode, mapper);
+		return diffNode.toPrettyString();
+
+	}
+
+	public static String diffJson(String json1, String json2)  {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode tree1;
+		JsonNode tree2;
+
+		try {
+			tree1 = mapper.readTree(json1);
+			tree2 = mapper.readTree(json2);
+		} catch (IOException e) {
+			System.err.println("Invalid JSON: " + e.getMessage());
+			return "{\"result\":\"Invalid JSON Format error.\"}";
+		}
+
+		ObjectNode diffNode = mapper.createObjectNode();
+		compareJsonNodes(tree1, tree2, diffNode, mapper);
+		return diffNode.toPrettyString();
+
+	}
+
+	private static void compareJsonNodes(JsonNode node1, JsonNode node2, ObjectNode diffNode, ObjectMapper mapper) {
+		Iterator<Map.Entry<String, JsonNode>> fields = node1.fields();
+		while (fields.hasNext()) {
+			Map.Entry<String, JsonNode> entry = fields.next();
+			String fieldName = entry.getKey();
+			JsonNode value1 = entry.getValue();
+			JsonNode value2 = node2.get(fieldName);
+
+			if (value2 == null) {
+				ObjectNode values = mapper.createObjectNode();
+				values.set("value1", value1);
+				values.put("value2", "");
+				diffNode.set(fieldName, values);
+			} else if (!value1.equals(value2)) {
+				if (value1.isObject() && value2.isObject()) {
+					ObjectNode nestedDiff = mapper.createObjectNode();
+					compareJsonNodes(value1, value2, nestedDiff, mapper);
+					diffNode.set(fieldName, nestedDiff);
+				} else {
+					ObjectNode values = mapper.createObjectNode();
+					values.set("value1", value1);
+					values.set("value2", value2);
+					diffNode.set(fieldName, values);
+				}
+			}
+		}
+
+		fields = node2.fields();
+		while (fields.hasNext()) {
+			Map.Entry<String, JsonNode> entry = fields.next();
+			String fieldName = entry.getKey();
+			if (!node1.has(fieldName)) {
+				ObjectNode values = mapper.createObjectNode();
+				values.put("value1", "");
+				values.set("value2", entry.getValue());
+				diffNode.set(fieldName, values);
+			}
+		}
+	}
+	public static void main(String[] args) {
+		String json1 = "{\"name\":\"John\",\"gender\":\"Male\", \"age\":30, \"city\":\"New York\", \"ext\":{\"sub\":\"json1sub\"}}";
+		String json2 = "{\"name\":\"John\",\"sex\":\"Male\", \"age\":31, \"city\":\"New York\", \"country\":\"USA\"}";
+
+		String diff = diffJson(json1, json2);
+		System.out.println(diff);
+	}
 }

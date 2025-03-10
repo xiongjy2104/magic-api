@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.internal.TypeParameterMatcher;
+import trace.SamplingLog;
 
 /**
  * An abstract netty ChannelHandler
@@ -32,6 +33,7 @@ public abstract class AbstractChannelHandler<I, O> extends ChannelDuplexHandler 
 
     @Override
     public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        SamplingLog.log(this.getClass().getName(),"channelRead");
         boolean release = true;
         try {
             boolean match = matcherInbound.match(msg);

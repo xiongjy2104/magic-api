@@ -15,6 +15,9 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
+import trace.SamplingLog;
+import trace.SamplingPool;
+
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -235,6 +238,9 @@ public class NettyMessageToServletRunnable implements MessageToRunnable {
 
         @Override
         public void run() {
+            long threadId =  Thread.currentThread().getId();
+            SamplingPool.addThreadId(threadId);
+            SamplingLog.log(this.getClass().getName(),"run");
             ServletHttpServletRequest request = exchange.getRequest();
             ServletHttpServletResponse response = exchange.getResponse();
             ServletErrorPageManager errorPageManager = exchange.getServletContext().getErrorPageManager();

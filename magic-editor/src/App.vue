@@ -11,7 +11,7 @@ try {
 if (window.MAGIC_EDITOR_CONFIG) {
 	defaultConfig = {...defaultConfig, ...window.MAGIC_EDITOR_CONFIG}
 }
-defaultConfig.baseURL = import.meta.env.MODE === 'development' ? 'http://127.0.0.1:9999/magic/web' : './';
+defaultConfig.baseURL = import.meta.env.MODE === 'development' ? 'http://127.0.0.1:9999/web' : './';
 defaultConfig.serverURL = import.meta.env.MODE === 'development' ? 'http://127.0.0.1:9999/' : './';
 defaultConfig.inJar = true;
 const getQueryString = name => {

@@ -111,7 +111,7 @@ public class HttpServletProtocolSpringAdapter extends HttpServletProtocol {
             super.setCompressionMimeTypes(compression.getMimeTypes().clone());
         }
         if (serverProperties != null) {
-            super.setMaxHeaderSize((SpringUtil.getNumberBytes(serverProperties, "getMaxHttpHeaderSize")).intValue());
+            super.setMaxHeaderSize((SpringUtil.getNumberBytes(serverProperties, "getMaxHttpRequestHeaderSize")).intValue());
         }
         Boolean enableH2 = httpServlet.getEnableH2();
         if (enableH2 == null) {

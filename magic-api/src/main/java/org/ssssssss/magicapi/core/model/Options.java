@@ -45,7 +45,17 @@ public enum Options {
 	/**
 	 * 禁止验证requestBody
 	 */
-	DISABLED_VALIDATE_REQUEST_BODY("禁止验证RequestBody", "disabled_validate_request_body", "false");
+	DISABLED_VALIDATE_REQUEST_BODY("禁止验证RequestBody", "disabled_validate_request_body", "false"),
+
+	/**
+	 * 接口启用时间
+	 */
+	ACTIVATE_TIME("接口启用时间", "activateTime", "2020-01-01 00:00:00"),
+
+	/**
+	 * 接口到期停用时间
+	 */
+	DEACTIVATE_TIME("接口停用时间", "deactivateTime", "9999-12-31 00:00:00");
 
 	private final String name;
 	private final String value;

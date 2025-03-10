@@ -7,10 +7,12 @@ package org.ssssssss.magicapi.modules.db.cache;
  */
 public class DefaultSqlCache implements SqlCache {
 
-	private final LRUCache cache;
+//	private final LRUCache cache;
+	private final LRUCaffeineCache cache;
 
 	public DefaultSqlCache(int capacity, long expire) {
-		this.cache = new LRUCache(capacity, expire);
+//		this.cache = new LRUCache(capacity, expire);
+		this.cache = new LRUCaffeineCache(capacity, expire);
 	}
 
 	@Override
@@ -33,5 +35,9 @@ public class DefaultSqlCache implements SqlCache {
 		cache.delete(name);
 	}
 
+	@Override
+	public long size() {
+		return cache.size();
+	}
 
 }

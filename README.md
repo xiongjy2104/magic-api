@@ -33,7 +33,6 @@ magic-api 是一个基于Java的接口快速开发框架，编写接口将通过
 - 支持对接口权限配置、拦截器等功能
 - 支持运行时动态修改数据源
 - 支持Swagger接口文档生成
-- 基于[magic-script](https://gitee.com/ssssssss-team/magic-script)脚本引擎，动态编译，无需重启，实时发布
 - 支持Linq式查询，关联、转换更简单
 - 支持数据库事务、SQL支持拼接，占位符，判断等语法
 - 支持文件上传、下载、输出图片
@@ -59,13 +58,24 @@ magic-api 是一个基于Java的接口快速开发框架，编写接口将通过
 ```properties
 server.port=9999
 #配置web页面入口
-magic-api.web=/magic/web
+magic-api.web=/web
 #配置文件存储位置。当以classpath开头时，为只读模式
 magic-api.resource.location=/data/magic-api
+
+resource: # 配置存储方式，默认使用的是文件
+#    location: data/magic-api # 接口信息存放外部指定目录
+#    location: classpath:magic-api # 接口信息存放在 src/main/resources/magic-api 下，可以打包在Jar中, 只读
+resource: # 配置存储方式，使用数据库
+   type: database # 配置存储在数据库中
+#    tableName: magic_api_file # 数据库中的表名
+#    prefix: /api # key前缀
+#    readonly: false # 是否是只读模式
+resource:
+    type: redis# 配置存储在redis中
 ```
 
 ## 在线编辑
-访问`http://localhost:9999/magic/web`进行操作
+访问`http://localhost:9999/web`进行操作
 
 # 文档/演示
 

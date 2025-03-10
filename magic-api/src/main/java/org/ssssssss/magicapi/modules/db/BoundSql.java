@@ -1,5 +1,7 @@
 package org.ssssssss.magicapi.modules.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.ssssssss.magicapi.core.context.RequestContext;
@@ -9,6 +11,7 @@ import org.ssssssss.magicapi.modules.db.mybatis.MybatisParser;
 import org.ssssssss.magicapi.modules.db.mybatis.SqlNode;
 import org.ssssssss.magicapi.modules.db.mybatis.TextSqlNode;
 import org.ssssssss.script.runtime.RuntimeContext;
+import trace.SamplingLog;
 
 import java.sql.Types;
 import java.util.*;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
  * @author mxd
  */
 public class BoundSql {
+	private static final Logger logger = LoggerFactory.getLogger(BoundSql.class);
 
 	private static final Pattern REPLACE_MULTI_WHITE_LINE = Pattern.compile("(\r?\n(\\s*\r?\n)+)");
 
@@ -172,7 +176,9 @@ public class BoundSql {
 	 */
 	@SuppressWarnings({"unchecked"})
 	private <T> T getCacheValue(String sql, Object[] params, Supplier<T> supplier) {
+		SamplingLog.log("BoundSql","getCacheValue");
 		if (sqlModule.getCacheName() == null) {
+			logger.info("sqlcache not used");
 			return supplier.get();
 		}
 		String cacheKey = sqlModule.getSqlCache().buildSqlCacheKey(sql, params);
@@ -180,6 +186,7 @@ public class BoundSql {
 		if (cacheValue != null) {
 			return (T) cacheValue;
 		}
+		logger.info("sqlcache not hit:"+cacheKey+"/"+sqlModule.getSqlCache().size());
 		T value = supplier.get();
 		sqlModule.getSqlCache().put(sqlModule.getCacheName(), cacheKey, value, sqlModule.getTtl());
 		return value;
@@ -190,6 +197,7 @@ public class BoundSql {
 	 */
 	@SuppressWarnings("unchecked")
 	<T> T execute(List<SQLInterceptor> interceptors, Supplier<T> supplier) {
+		SamplingLog.log("BoundSql","execute");
 		RequestEntity requestEntity = RequestContext.getRequestEntity();
 		interceptors.forEach(interceptor -> interceptor.preHandle(this, requestEntity));
 		Supplier<T> newSupplier = () -> {
@@ -205,6 +213,10 @@ public class BoundSql {
 			}
 			return (T) result;
 		};
-		return getCacheValue(this.getSql(), this.getParameters(), newSupplier);
+		long st=System.currentTimeMillis();
+		T value= getCacheValue(this.getSql(), this.getParameters(), newSupplier);
+//		requestEntity.getResponse().setHeader("timeCounter#4","jdbcPhase:"+st%10000+" + "+(System.currentTimeMillis()-st));
+
+		return value;
 	}
 }

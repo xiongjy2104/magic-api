@@ -53,7 +53,7 @@ function getLocalizeCode(){
 	return `
 		const mapLangIdx = ${JSON.stringify(mapLangIdx)};
 		const mapNlsLang = ${JSON.stringify(language)};
-		const locale = localStorage.getItem('magic-locale') || 'zh-cn'
+		const locale = localStorage.getItem('magic-locale') || 'en'
 		function _format(message, args) {
 			let result;
 			if (args.length === 0) {
