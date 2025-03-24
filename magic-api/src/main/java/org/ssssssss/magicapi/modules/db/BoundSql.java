@@ -184,6 +184,7 @@ public class BoundSql {
 		String cacheKey = sqlModule.getSqlCache().buildSqlCacheKey(sql, params);
 		Object cacheValue = sqlModule.getSqlCache().get(sqlModule.getCacheName(), cacheKey);
 		if (cacheValue != null) {
+			logger.info("sqlcache hit:"+cacheKey+", returned value object");
 			return (T) cacheValue;
 		}
 		logger.info("sqlcache not hit:"+cacheKey+"/"+sqlModule.getSqlCache().size());

@@ -260,7 +260,7 @@ public class SQLModule implements DynamicAttribute<SQLModule, SQLModule>, Dynami
 	 */
 	@Comment("使用缓存，过期时间采用默认配置")
 	public SQLModule cache(@Comment(name = "cacheName", value = "缓存名") String cacheName) {
-		return cache(cacheName, 0);
+		return cache(cacheName, ttl);
 	}
 
 	@Comment("采用驼峰列名")
