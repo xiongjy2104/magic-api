@@ -84,6 +84,7 @@ public class MybatisParser {
 		ForeachSqlNode foreachSqlNode = new ForeachSqlNode();
 		foreachSqlNode.setCollection(getNodeAttributeValue(node, "collection"));
 		foreachSqlNode.setSeparator(getNodeAttributeValue(node, "separator", ","));
+		foreachSqlNode.setCollectionSeparator(getNodeAttributeValue(node, "collectionSeparator", ","));
 		foreachSqlNode.setClose(getNodeAttributeValue(node, "close", ")"));
 		foreachSqlNode.setOpen(getNodeAttributeValue(node, "open", "("));
 		foreachSqlNode.setItem(getNodeAttributeValue(node, "item"));

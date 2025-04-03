@@ -27,10 +27,10 @@ public class DefaultSqlInterceptor implements SQLInterceptor {
 			return it + "(" + it.getClass().getSimpleName() + ")";
 		}).collect(Collectors.joining(", "));
 		String dataSourceName = boundSql.getSqlModule().getDataSourceName();
-		logger.info("执行SQL：{}; -- 参数： {}", boundSql.getSql().replaceAll("\n", " ").replaceAll("    ", " "), (parameters.length() > 0) ? parameters : "");
-		if (dataSourceName != null) {
-			logger.info("执行数据源：{}", dataSourceName);
-		}
+		logger.info("timeCounter#threadId-{}-接口{} {},查询数据库源：{}，待执行SQL：{}; --参数：{}", Thread.currentThread().getId(),
+				requestEntity.getApiInfo().getMethod(), requestEntity.getApiInfo().getPath(),
+				dataSourceName, boundSql.getSql().replaceAll("\n", " ").replaceAll("    ", " "),
+				(parameters.length() > 0) ? parameters : "");
 	}
 	@Override
 	public Object postHandle(BoundSql boundSql, Object result, RequestEntity requestEntity) {
